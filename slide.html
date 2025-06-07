@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Слайдер изображений с картинками</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 900px;
+            width: 100%;
+            text-align: center;
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+            font-size: 2.5rem;
+        }
+        
+        .slider-container {
+            position: relative;
+            margin: 0 auto 30px;
+            max-width: 800px;
+            overflow: hidden;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            height: 450px;
+        }
+        
+        .slider {
+            display: flex;
+            transition: transform 0.5s ease-in-out;
+            height: 100%;
+        }
+        
+        .slide {
+            min-width: 100%;
+            height: 100%;
+            position: relative;
+        }
+        
+        .slide img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        
+        .slide-info {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+            color: white;
+            padding: 25px 20px 15px;
+            text-align: left;
+        }
+        
+        .slide-info h3 {
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+        }
+        
+        .slide-info p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 30px;
+            margin-bottom: 25px;
+        }
+        
+        .btn {
+            background: linear-gradient(to right, #3498db, #2980b9);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 18px;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            min-width: 120px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+            background: linear-gradient(to right, #2980b9, #3498db);
+        }
+        
+        .btn:active {
+            transform: translateY(-1px);
+        }
+        
+        .indicator {
+            font-size: 20px;
+            color: #2c3e50;
+            font-weight: bold;
+            background: rgba(236, 240, 241, 0.7);
+            padding: 10px 25px;
+            border-radius: 50px;
+            min-width: 200px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .dots {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-top: 10px;
+        }
+        
+        .dot {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background-color: #bdc3c7;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .dot.active {
+            background-color: #3498db;
+            transform: scale(1.3);
+        }
+        
+        .description {
+            color: #34495e;
+            font-size: 18px;
+            line-height: 1.6;
+            max-width: 700px;
+            margin: 30px auto 10px;
+            background: rgba(236, 240, 241, 0.5);
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+        }
+        
+        @media (max-width: 768px) {
+            .slider-container {
+                height: 350px;
+            }
+            
+            .controls {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .btn {
+                width: 100%;
+                max-width: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Путешествия по миру</h1>
+        
+        <div class="slider-container">
+            <div class="slider" id="slider">
+            </div>
+        </div>
+        
+        <div class="controls">
+            <button class="btn" id="prevBtn">Назад</button>
+            <div class="indicator" id="indicator">Изображение 1 из 6</div>
+            <button class="btn" id="nextBtn">Вперед</button>
+        </div>
+        
+        <div class="dots" id="dots">
+        </div>
+        
+        <div class="description">
+            <p>Этот слайдер демонстрирует красивые места нашей планеты. Используйте кнопки для навигации или кликните на точки под слайдером.</p>
+        </div>
+    </div>
+
+    <script>
+        
+        const slidesData = [
+            {
+                title: "Горы Швейцарии",
+                description: "Величественные Альпы с заснеженными вершинами",
+                imageUrl: "https://cdn1.ozone.ru/s3/multimedia-9/6458089785.jpg"
+            },
+            {
+                title: "Пляжи Бали",
+                description: "Тропический рай с белоснежными пляжами",
+                imageUrl: "https://i.pinimg.com/originals/70/aa/0d/70aa0db1686696d847d84e6d0e2d081f.jpg"
+            },
+            {
+                title: "Пустыня Сахара",
+                description: "Бескрайние песчаные дюны под палящим солнцем",
+                imageUrl: "https://avatars.mds.yandex.net/get-mpic/6458782/img_id7364527029950042430.jpeg/orig"
+            },
+            {
+                title: "Японские сады",
+                description: "Умиротворяющие сады с цветущей сакурой",
+                imageUrl: "https://i.pinimg.com/originals/5c/b4/43/5cb443c71dc7b10cb83ff736f14813da.jpg"
+            },
+            {
+                title: "Северное сияние",
+                description: "Завораживающее природное явление в небе",
+                imageUrl: "https://urgi-stv.ru/wp-content/uploads/0/2/2/02233b66ef67e3a54511da8c57e3e821.jpeg"
+            },
+            {
+                title: "Венецианские каналы",
+                description: "Романтические прогулки на гондолах по Венеции",
+                imageUrl: "https://cdn.getyourguide.com/img/tour/58f9d9e17caef.jpeg/145.jpg"
+            }
+        ];
+        
+        
+        const slider = document.getElementById('slider');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const indicator = document.getElementById('indicator');
+        const dotsContainer = document.getElementById('dots');
+        
+        
+        let currentSlide = 0;
+        
+        
+        function initSlider() {
+            
+            slider.innerHTML = '';
+            dotsContainer.innerHTML = '';
+            
+            
+            slidesData.forEach((slide, index) => {
+                const slideEl = document.createElement('div');
+                slideEl.className = 'slide';
+                
+                slideEl.innerHTML = `
+                    <img src="${slide.imageUrl}" alt="${slide.title}">
+                    <div class="slide-info">
+                        <h3>${slide.title}</h3>
+                        <p>${slide.description}</p>
+                    </div>
+                `;
+                
+                slider.appendChild(slideEl);
+                
+                
+                const dot = document.createElement('div');
+                dot.className = 'dot';
+                if (index === 0) dot.classList.add('active');
+                dot.addEventListener('click', () => goToSlide(index));
+                dotsContainer.appendChild(dot);
+            });
+            
+            
+            updateIndicator();
+        }
+        
+        
+        function goToSlide(slideIndex) {
+            currentSlide = slideIndex;
+            slider.style.transform = `translateX(-${currentSlide * 100}%)`;
+            updateIndicator();
+            updateDots();
+        }
+        
+        
+        function nextSlide() {
+            currentSlide = (currentSlide + 1) % slidesData.length;
+            goToSlide(currentSlide);
+        }
+        
+        
+        function prevSlide() {
+            currentSlide = (currentSlide - 1 + slidesData.length) % slidesData.length;
+            goToSlide(currentSlide);
+        }
+        
+        
+        function updateIndicator() {
+            indicator.textContent = `Изображение ${currentSlide + 1} из ${slidesData.length}`;
+        }
+        
+        
+        function updateDots() {
+            document.querySelectorAll('.dot').forEach((dot, index) => {
+                if (index === currentSlide) {
+                    dot.classList.add('active');
+                } else {
+                    dot.classList.remove('active');
+                }
+            });
+        }
+        
+        
+        prevBtn.addEventListener('click', prevSlide);
+        nextBtn.addEventListener('click', nextSlide);
+        
+        
+        let autoSlide = setInterval(nextSlide, 5000);
+        
+        
+        slider.addEventListener('mouseenter', () => clearInterval(autoSlide));
+        slider.addEventListener('mouseleave', () => {
+            autoSlide = setInterval(nextSlide, 5000);
+        });
+        
+        
+        initSlider();
+    </script>
+</body>
+</html>
